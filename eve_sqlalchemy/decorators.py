@@ -6,6 +6,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import warnings
+
+import sqlalchemy
 from sqlalchemy.sql import expression
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
@@ -16,6 +19,7 @@ from sqlalchemy import schema as sqla_schema
 from eve.utils import config
 
 from .utils import dict_update
+
 
 
 __all__ = ['registerSchema']
@@ -117,7 +121,24 @@ class registerSchema(object):
             # association_proxy.
 
             desc.__get__(None, cls_)
+            # TODO: Not all types of association proxies are supported,
+            # e.g proxies to tables which use inheritance and are joins
+            # of multiple tables.
+            if not hasattr(desc.remote_attr, 'property'):
+                warnings.warn(
+                    "Attribute '%s' has no 'property' attribute."
+                    % (name,))
+                continue
+
             if hasattr(desc.remote_attr.property, 'target'):
+                # NOTE: Same case as above.
+                if (type(desc.remote_attr.property.target)
+                        is sqlalchemy.sql.selectable.Join):
+                    warnings.warn(
+                        "Attribute '%s' has no 'name' attribute."
+                        % (desc.remote_attr.property.target,))
+                    continue
+
                 r = desc.remote_attr.property.target.name
             else:
                 r = desc.remote_attr.property.key
