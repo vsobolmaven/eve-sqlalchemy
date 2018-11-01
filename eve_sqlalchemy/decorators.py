@@ -7,6 +7,7 @@
 """
 
 import warnings
+import logging
 
 import sqlalchemy
 from sqlalchemy.sql import expression
@@ -20,6 +21,8 @@ from eve.utils import config
 
 from .utils import dict_update
 
+
+logger = logging.getLogger(__name__)
 
 
 __all__ = ['registerSchema']
@@ -125,8 +128,9 @@ class registerSchema(object):
             # e.g proxies to tables which use inheritance and are joins
             # of multiple tables.
             if not hasattr(desc.remote_attr, 'property'):
-                warnings.warn(
-                    "Attribute '%s' has no 'property' attribute."
+                logger.debug(
+                    "Attribute '%s' has no 'property' attribute, not adding"
+                    " to schema."
                     % (name,))
                 continue
 
