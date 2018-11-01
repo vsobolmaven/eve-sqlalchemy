@@ -138,8 +138,9 @@ class registerSchema(object):
                 # NOTE: Same case as above.
                 if (type(desc.remote_attr.property.target)
                         is sqlalchemy.sql.selectable.Join):
-                    warnings.warn(
-                        "Attribute '%s' has no 'name' attribute."
+                    logger.debug(
+                        "Attribute '%s' has no 'name' attribute, not adding "
+                        " to schema."
                         % (desc.remote_attr.property.target,))
                     continue
 
